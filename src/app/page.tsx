@@ -1,9 +1,10 @@
-import HomeViews from "../views/home";
+import HomePage from "@/views/home";
+
 
 export default function Home() {
   return (
     <div>
-      <HomeViews />
+      <HomePage />
     </div>
   );
 }
