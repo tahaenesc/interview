@@ -1,93 +1,103 @@
-// src/views/home/index.tsx
-import { dehydrate, QueryClient } from "@tanstack/react-query";
-import { GetServerSideProps } from "next";
-// import { useQuery } from "@tanstack/react-query";
-// import fetchCharacters from "@/lib/fetchCharacters"; // Karakter verisi fonksiyonu
-// import fetchLocations from "@/lib/fetchLocations"; // Lokasyon verisi fonksiyonu
-// import fetchEpisodes from "@/lib/fetchEpisodes"; // Bölüm verisi fonksiyonu
+"use client";
+import React, { useEffect, useState } from "react";
 
-// Server-side veri çekme ve prefetching işlemi
-export const getServerSideProps: GetServerSideProps = async () => {
-  const queryClient = new QueryClient();
+// API Cevabını Tip Olarak Tanımlama
+interface Origin {
+  name: string;
+  url: string;
+}
 
-  // await Promise.all([
-  //   queryClient.prefetchQuery("character", fetchCharacters), // query key ve fetching function
-  //   queryClient.prefetchQuery("locations", fetchLocations), // query key ve fetching function
-  //   queryClient.prefetchQuery("episodes", fetchEpisodes), // query key ve fetching function
-  // ]);
+interface Location {
+  name: string;
+  url: string;
+}
 
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient), // Veriyi dehydratedState ile client'a aktar
-    },
+interface Episode {
+  url: string;
+}
+
+interface Character {
+  id: number;
+  name: string;
+  status: string;
+  species: string;
+  gender: string;
+  origin: Origin;
+  location: Location;
+  image: string;
+  episode: Episode[];
+}
+
+interface ApiResponse {
+  info: {
+    count: number;
+    pages: number;
+    next: string | null;
+    prev: string | null;
   };
-};
+  results: Character[];
+}
 
-// Home Page bileşeni
-const HomePage = () => {
-  // `useQuery`'de query key ve fonksiyon doğru şekilde geçmeli
-  // const { data: charactersData, error: charactersError } = useQuery(
-  //   "characters",
-  //   fetchCharacters // Fonksiyonu buraya doğru şekilde geçiriyoruz
-  // );
-  // const { data: locationsData, error: locationsError } = useQuery(
-  //   "locations",
-  //   fetchLocations
-  // );
-  // const { data: episodesData, error: episodesError } = useQuery(
-  //   "episodes",
-  //   fetchEpisodes
-  // );
+const RickAndMortyData = () => {
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [nextPage, setNextPage] = useState<string | null>(null);
 
-  // Hata mesajları
-  // if (charactersError || locationsError || episodesError) {
-  //   return (
-  //     <p>
-  //       Hata oluştu:{" "}
-  //       {charactersError?.message ||
-  //         locationsError?.message ||
-  //         episodesError?.message}
-  //     </p>
-  //   );
-  // }
+  const fetchData = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      const data: ApiResponse = await response.json();
+      setCharacters((prevCharacters) => [...prevCharacters, ...data.results]);
+      setNextPage(data.info.next);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setLoading(false);
+    }
+  };
 
-  // Yükleniyor durumu
-  // if (!charactersData || !locationsData || !episodesData) {
-  //   return <p>Yükleniyor...</p>;
-  // }
+  useEffect(() => {
+    fetchData("https://rickandmortyapi.com/api/character");
+  }, []);
+
+  const loadMore = () => {
+    if (nextPage) {
+      setLoading(true);
+      fetchData(nextPage);
+    }
+  };
+
+  if (loading && characters.length === 0) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div>
-      <h1>Rick and Morty Verileri</h1>
+    <div className="flex flex-col items-center justify-center ">
+      <h1>Rick and Morty Characters</h1>
 
-      {/* <section>
-        <h2>Karakterler</h2>
-        <ul>
-          {charactersData.results.map((character) => (
-            <li key={character.id}>{character.name}</li>
-          ))}
-        </ul>
-      </section>
+      <ul>
+        {characters.map((character) => (
+          <li key={character.id}>
+            <h3>{character.name}</h3>
+            <p>Status: {character.status}</p>
+            <p>Species: {character.species}</p>
+            <p>Gender: {character.gender}</p>
+            <p>Location: {character.location.name}</p>
+            <p>Origin: {character.origin.name}</p>
+            <h4>Episodes:</h4>
+            <div>---------------------------</div>
 
-      <section>
-        <h2>Lokasyonlar</h2>
-        <ul>
-          {locationsData.results.map((location) => (
-            <li key={location.id}>{location.name}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-        <h2>Bölümler</h2>
-        <ul>
-          {episodesData.results.map((episode) => (
-            <li key={episode.id}>{episode.name}</li>
-          ))}
-        </ul>
-      </section> */}
+            {/* <ul>
+              {character.episode.map((episode, index) => (
+                <li key={index}>Episode URL: {episode.url}</li>
+              ))}
+            </ul> */}
+          </li>
+        ))}
+      </ul>
+      {nextPage && !loading && <button onClick={loadMore}>Load More</button>}
     </div>
   );
 };
 
-export default HomePage;
+export default RickAndMortyData;
