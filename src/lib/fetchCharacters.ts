@@ -1,13 +1,10 @@
 // src/lib/fetchCharacters.ts
 const fetchCharacters = async () => {
-  const response = await fetch("https://rickandmortyapi.com/api/character");
-
-  if (!response.ok) {
-    throw new Error("Veri yüklenemedi");
+  const res = await fetch("https://rickandmortyapi.com/api/character");
+  if (!res.ok) {
+    throw new Error("Veri çekme hatası");
   }
-
-  const data = await response.json();
-  return data.results; // Sadece karakterleri döndürüyoruz
+  return res.json();
 };
 
 export default fetchCharacters;
