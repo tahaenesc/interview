@@ -16,19 +16,24 @@ type Props = {
 
 export function CharacterCard({ title, desc }: Props) {
   return (
-    <Card className="w-[350px]">
-      <CardHeader>
-        {/* Use the title and desc props if provided */}
-        <CardTitle>{title || "Default Title"}</CardTitle>
-        <CardDescription>{desc || "Default Description"}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid w-full items-center gap-4">merhaba</div>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline">Cancel</Button>
-        <Button>Deploy</Button>
-      </CardFooter>
+    <Card className="w-[350px] flex mt-12">
+      <div className="flex items-center justify-center pl-4">
+        resim
+      </div>
+      <div>
+        <CardHeader>
+          placeholder
+          <CardTitle>{title || "Default Title"}</CardTitle>
+          <CardDescription>{desc || "Default Description"}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid w-full items-center gap-4">merhaba</div>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline">Cancel</Button>
+          <Button>Deploy</Button>
+        </CardFooter>
+      </div>
     </Card>
   );
 }
